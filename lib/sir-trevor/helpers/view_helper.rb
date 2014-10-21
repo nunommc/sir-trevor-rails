@@ -54,12 +54,15 @@ module SirTrevor
         end
       end
 
+      ALLOWED_HTML_TAGS = %w(h1 h2 h3 h4 h5 h6 p br strong b em i pre code blockquote a ul ol li)
+      ALLOWED_HTML_ATTRIBUTES = %w(href target rel)
+      
       def sir_trevor_markdown(text)
-        renderer = CustomMarkdownFormatter.new(:hard_wrap => true, :filter_html => true,
+        renderer = CustomMarkdownFormatter.new(:hard_wrap => true,
                                                :autolink => true, :no_intraemphasis => true,
-                                               :fenced_code => true)
+                                               :fenced_code => true, :safe_links_only => true)
         markdown = Redcarpet::Markdown.new(renderer)
-        markdown.render(text).html_safe
+        sanitize markdown.render(text), tags: ALLOWED_HTML_TAGS, attributes: ALLOWED_HTML_ATTRIBUTES
       end
 
       def parse_sir_trevor(json)
@@ -88,5 +91,9 @@ class CustomMarkdownFormatter < Redcarpet::Render::HTML
 
   def codespan(code)
     code
+  end
+
+  def block_html(raw_html)
+    raw_html
   end
 end
